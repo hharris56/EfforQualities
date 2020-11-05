@@ -10,35 +10,50 @@ import os
 import numpy
 import pandas as pd
 import tensorflow as tf
+import csv
 from keras.models import Sequential
 from keras.layers import Dense
 
 def main():
     # inputSet = numpy.array((75,1,1))
     # labelSet = numpy.array((1,1,1))
-    inputSet = pd.DataFrame()
-    labelSet = pd.DataFrame()
+    inputSet = []
+    labelSet = []
 
     # get each file
     dirpath = "{}/dataset".format(os.getcwd())
     print(dirpath)
     filenames = os.listdir(dirpath)
     for i in range(len(filenames)):
+
+
+        # with open("{}/{}".format(dirpath, filenames[i]), 'r') as f:
+        #     reader = csv.reader(f)
+        #     fileInput = list(reader)
+        #     for row in fileInput:
+        #         row = [float(i) for i in row]
+        #     print(fileInput)
+        #     fileLabel = fileInput.pop(len(fileInput) - 1)
+            
         fileInput = pd.read_csv("{}/{}".format(dirpath, filenames[i]), header=None, sep=',')
         fileLabel = fileInput.tail(1).dropna('columns', 'any')
         fileInput.drop(fileInput.tail(1).index, inplace=True)
+
+        inTensor = tf.Tensor(fileInput, (75, len(fileInput)), dtype=tf.float16)
+        print(inTensor)
+
         # print(fileInput)
         # print(fileLabel)
 
-        inputSet = inputSet.append(fileInput)
-        labelSet = labelSet.append(fileLabel, ignore_index=True)
+        # inputSet.append(fileInput)
+        # labelSet.append(fileLabel)
+    
+    # print(inputSet)
     
     # " At this point we have aggregated our data from files "
 
     # turn data into a Dataset, shuffle and batch
-    dataset = tf.data.Dataset.from_tensor_slices(inputSet)
-    for element in dataset:
-        print(element)
+    # dataset = tf.data.Dataset.from_tensor_slices((inputSet, labelSet))
 
     return 0
     train_dataset = dataset.shuffle(len(dataset)).batch(1)
