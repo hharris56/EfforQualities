@@ -3,6 +3,7 @@
 # November 12th, 2020
 
 import os
+import glob
 import numpy as np
 import json
 from PIL import Image
@@ -13,8 +14,12 @@ directories = ['push', 'float', 'punch', 'press',
 def main():
     minLen = get_min_dimensions()
 
+    # make 'imgs' dir if it doesn't exist
     if not os.path.isdir("imgs"):
         os.makedirs("imgs")
+
+    # clear target directory
+    clear_directory("imgs")
 
     # search for each label directory
     for label in directories:
@@ -26,6 +31,7 @@ def main():
             for direct in os.listdir(label):
                 path = label + "/" + direct
                 if os.path.isdir(path):
+                    print("reading jsons from: " + path)
                     arr = []
                     # read data from each json
                     # == read data from each frame
@@ -43,6 +49,17 @@ def main():
                     fp = "imgs/" + path + ".jpg"
                     img.save(fp)
 
+def clear_directory(dirname):
+    files = glob.glob(dirname + "/*")
+    print("clearing: " + dirname)
+    for f in files:
+        # remove files from dir, then remove dir
+        if os.path.isdir(f):
+            clear_directory(f)
+            os.rmdir(f)
+        else:
+            os.remove(f)
+
 def normalize_array(arr):
     for i in range(len(arr)):
         arr[i] = arr[i] / 1000
@@ -52,7 +69,6 @@ def get_min_dimensions():
     minLength = int(99999)
     # search for each label directory
     for label in directories:
-        print(label)
         if os.path.isdir(label):
             # count files in their subdirectories 
             # == count frames in each video
