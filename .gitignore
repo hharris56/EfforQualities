@@ -1,7 +1,8 @@
 *.zip
 *.csv
+*.json
+*.jpg
 dataset/
 zips/
-glides/
-glide/
 imgs/
+jsons/
