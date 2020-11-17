@@ -8,6 +8,7 @@ import numpy as np
 import json
 from PIL import Image
 
+root = 'jsons/'
 directories = ['push', 'float', 'punch', 'press', 
                 'glide', 'slash', 'wring', 'dab', 'flick']
 
@@ -15,23 +16,24 @@ def main():
     minLen = get_min_dimensions()
 
     # make 'imgs' dir if it doesn't exist
-    if not os.path.isdir("imgs"):
-        os.makedirs("imgs")
-
+    # if not os.path.isdir("imgs"):
+    #     os.makedirs("imgs")
     # clear target directory
-    clear_directory("imgs")
+    # clear_directory("imgs")
+    # ^^^ now handled in bash script
 
     # search for each label directory
     for label in directories:
-        if os.path.isdir(label):
+        if os.path.isdir(root + label):
+            print("directory: imgs/" + label)
             if not os.path.isdir("imgs/" + label):
                 os.makedirs("imgs/" + label)
             # get each subdirectory
             # == get each video
-            for direct in os.listdir(label):
-                path = label + "/" + direct
+            for direct in os.listdir(root + label):
+                path = root + label + "/" + direct
                 if os.path.isdir(path):
-                    print("reading jsons from: " + path)
+                    print(path + "\t=>\t", end="")
                     arr = []
                     # read data from each json
                     # == read data from each frame
@@ -46,8 +48,10 @@ def main():
                     # format list into image
                     nparr = np.array(arr)
                     img = Image.fromarray(np.uint8(nparr * 255), 'L')
-                    fp = "imgs/" + path + ".jpg"
+                    dirname = "/".join(path.split("/")[1:])
+                    fp = "imgs/" + dirname + ".jpg"
                     img.save(fp)
+                    print(fp)
 
 def clear_directory(dirname):
     files = glob.glob(dirname + "/*")
@@ -69,11 +73,11 @@ def get_min_dimensions():
     minLength = int(99999)
     # search for each label directory
     for label in directories:
-        if os.path.isdir(label):
+        if os.path.isdir(root + label):
             # count files in their subdirectories 
             # == count frames in each video
-            for direct in os.listdir(label):
-                path = label + "/" + direct
+            for direct in os.listdir(root + label):
+                path = root + label + "/" + direct
                 if os.path.isdir(path):
                     minLength = min(minLength, len(os.listdir(path)))
     
