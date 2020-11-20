@@ -9,11 +9,13 @@ import json
 from PIL import Image
 
 root = 'jsons/'
-directories = ['push', 'float', 'punch', 'press', 
-                'glide', 'slash', 'wring', 'dab', 'flick']
+directories = ['float', 'punch', 'press', 'glide', 
+                'slash', 'wring', 'dab', 'flick']
 
 def main():
-    minLen = get_min_dimensions()
+    # minLen = get_min_dimensions()
+
+    minLen = 60
 
     # make 'imgs' dir if it doesn't exist
     # if not os.path.isdir("imgs"):
@@ -35,23 +37,26 @@ def main():
                 if os.path.isdir(path):
                     print(path + "\t=>\t", end="")
                     arr = []
-                    # read data from each json
-                    # == read data from each frame
-                    for filename in os.listdir(path):
-                        filepath = path + "/" + filename
-                        with open(filepath) as jfile:
-                            data = json.load(jfile)
-                            posepoints = data['people'][0]['pose_keypoints_2d']
-                            arr.append(normalize_array(posepoints))
-                        if len(arr) == minLen:
-                            break
-                    # format list into image
-                    nparr = np.array(arr)
-                    img = Image.fromarray(np.uint8(nparr * 255), 'L')
-                    dirname = "/".join(path.split("/")[1:])
-                    fp = "imgs/" + dirname + ".jpg"
-                    img.save(fp)
-                    print(fp)
+                    if len(os.listdir(path)) > minLen:
+                        # read data from each json
+                        # == read data from each frame
+                        for filename in os.listdir(path):
+                            filepath = path + "/" + filename
+                            with open(filepath) as jfile:
+                                data = json.load(jfile)
+                                posepoints = data['people'][0]['pose_keypoints_2d']
+                                arr.append(normalize_array(posepoints))
+                            if len(arr) == minLen:
+                                break
+                        # format list into image
+                        nparr = np.array(arr)
+                        img = Image.fromarray(np.uint8(nparr * 255), 'L')
+                        dirname = "/".join(path.split("/")[1:])
+                        fp = "imgs/" + dirname + ".jpg"
+                        img.save(fp)
+                        print(fp)
+                    else:
+                        print("ERROR: too short... skipping")
 
 def clear_directory(dirname):
     files = glob.glob(dirname + "/*")
@@ -73,12 +78,14 @@ def get_min_dimensions():
     minLength = int(99999)
     # search for each label directory
     for label in directories:
+        print("\t" + label)
         if os.path.isdir(root + label):
             # count files in their subdirectories 
             # == count frames in each video
             for direct in os.listdir(root + label):
                 path = root + label + "/" + direct
                 if os.path.isdir(path):
+                    print(len(os.listdir(path)))
                     minLength = min(minLength, len(os.listdir(path)))
     
     return minLength

@@ -15,6 +15,17 @@ import csv
 from keras.models import Sequential
 from keras.layers import Dense
 
+effort_dict = {
+    'float': 0,
+    'punch': 1,
+    'press': 0,
+    'glide': 0,
+    'slash': 1,
+    'wring': 0,
+    'dab': 1,
+    'flick': 1
+}
+
 def main():
 
     # tf.get_logger().setLevel('FATAL')
@@ -22,10 +33,9 @@ def main():
     dataDir = "imgs"
     imgCount = sum([len(files) for r, d, files in os.walk("imgs")])
 
-    imgWdith, imgHeight = get_dimensions(dataDir)
+    imgWidth, imgHeight = get_dimensions(dataDir)
 
-    imgWidth = 75
-    imgHeight = 83
+    print("data length: {}".format(imgHeight))
 
     train_dataset = tf.keras.preprocessing.image_dataset_from_directory(
         dataDir,
@@ -44,6 +54,13 @@ def main():
         image_size=(imgHeight, imgWidth),
         batch_size=imgCount
     )
+
+    # labels = train_dataset.class_names
+    # for batch in train_dataset:
+    #     for i in range(len(batch[1])):
+    #         batch[1][i] = effort_dict[labels[batch[1][i]]]
+    #         print(batch[1][i])
+    #     # print(len(val[0]))
 
     train_dataset.cache().shuffle(100)
     validation_dataset.cache()
@@ -82,6 +99,8 @@ def get_dimensions(datadir):
         path = datadir + "/" + direct
         for imgFile in os.listdir(path):
             img = Image.open(path + "/" + imgFile)
+            # DOESNT HAVE TO BE MINIMUM
+            # ALL IMAGES ARE SET SIZE AT THIS POINT    
             return img.size
 
 if __name__ == "__main__":
